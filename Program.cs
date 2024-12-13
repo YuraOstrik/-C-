@@ -7,10 +7,7 @@ class Program
 
     static void Main()
     {
-        // Инициализация словарей вручную
         InitializeDictionaries();
-
-        // Подписка на события
         foreach (var dict in dictionaries)
         {
             dict.WordAdded += OnWordAdded;
@@ -27,7 +24,6 @@ class Program
             Console.WriteLine("3. Заменить перевод");
             Console.WriteLine("4. Удалить слово или перевод");
             Console.WriteLine("5. Искать перевод");
-            Console.WriteLine("6. Экспортировать слово");
             Console.WriteLine("0. Выход");
 
             Console.Write("Выберите пункт: ");
@@ -53,7 +49,6 @@ class Program
 
     static void InitializeDictionaries()
     {
-        // Инициализация словарей вручную
         var dict1 = new Dictionary("Англо-Русский");
         dict1.AddWord("hello", "привет");
         dict1.AddWord("world", "мир");
@@ -136,18 +131,6 @@ class Program
             dict.SearchWord(word);
         }
     }
-
-    static void ExportWord()
-    {
-        var dict = SelectDictionary();
-        if (dict != null)
-        {
-            Console.Write("Введите слово для экспорта: ");
-            string word = Console.ReadLine();
-            dict.ExportWord(word);
-        }
-    }
-
     static Dictionary SelectDictionary()
     {
         Console.WriteLine("Доступные словари:");
@@ -165,8 +148,6 @@ class Program
         Console.WriteLine("Неверный выбор!");
         return null;
     }
-
-    // Обработчики событий
     static void OnWordAdded(object sender, WordEventArgs e)
     {
         Console.WriteLine($"Слово '{e.Word}' добавлено в словарь '{((Dictionary)sender).Name}' с переводом '{e.Translation}'.");
@@ -187,8 +168,6 @@ class Dictionary
 {
     public string Name { get; }
     private Dictionary<string, List<string>> words = new();
-
-    // События
     public event EventHandler<WordEventArgs> WordAdded;
     public event EventHandler<WordEventArgs> WordRemoved;
     public event EventHandler<TranslationEventArgs> TranslationReplaced;
@@ -206,7 +185,6 @@ class Dictionary
         }
         words[word].Add(translation);
 
-        // Вызов события
         WordAdded?.Invoke(this, new WordEventArgs(word, translation));
     }
 
@@ -215,7 +193,6 @@ class Dictionary
         if (words.ContainsKey(word) && words[word].Remove(oldTranslation))
         {
             words[word].Add(newTranslation);
-            // Вызов события
             TranslationReplaced?.Invoke(this, new TranslationEventArgs(word, oldTranslation, newTranslation));
         }
     }
@@ -225,7 +202,6 @@ class Dictionary
         if (words.ContainsKey(word))
         {
             words.Remove(word);
-            // Вызов события
             WordRemoved?.Invoke(this, new WordEventArgs(word, null));
         }
     }
@@ -235,7 +211,6 @@ class Dictionary
         if (words.ContainsKey(word) && words[word].Count > 1)
         {
             words[word].Remove(translation);
-            // Вызов события
             TranslationReplaced?.Invoke(this, new TranslationEventArgs(word, translation, null));
         }
     }
@@ -245,18 +220,6 @@ class Dictionary
         if (words.ContainsKey(word))
         {
             Console.WriteLine($"{word}: {string.Join(", ", words[word])}");
-        }
-        else
-        {
-            Console.WriteLine("Слово не найдено.");
-        }
-    }
-
-    public void ExportWord(string word)
-    {
-        if (words.ContainsKey(word))
-        {
-            Console.WriteLine($"Слово экспортировано: {word}: {string.Join(", ", words[word])}");
         }
         else
         {
